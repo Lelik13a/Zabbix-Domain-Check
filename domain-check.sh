@@ -35,10 +35,6 @@
 #   Copy the shell script to a suitable location
 #
 #
-# Usage:
-#  Refer to the usage() sub-routine, or invoke domain-check
-#  with the "-h" option.
-#
 
 ZABBIX="FALSE"
 
@@ -62,6 +58,7 @@ CP="/bin/cp"
 DOMAINDB="/var/cache/zabbix/domain.db"
 ZABBIXSERVER="127.0.0.1"
 ZABBIXPORT="10051"
+ZABBIXHOST="Domains"
 
 
 #############################################################################
@@ -264,7 +261,7 @@ check_domain_status()
 	REGISTRAR=`${CAT} ${WHOIS_TMP} | ${AWK} '/Tech-name/ && $2 != ""  { REGISTRAR=substr($2,1,17) } END { print REGISTRAR }'`
     elif [ "${TLDTYPE}" == "pl" ];
     then
-	REGISTRAR=`${CAT} ${WHOIS_TMP} | ${AWK} '/REGISTRAR:/ && $2 != ""  { getline; REGISTRAR=substr($2,1,17) } END { print REGISTRAR }'`
+	REGISTRAR=`${CAT} ${WHOIS_TMP} | ${AWK} '/REGISTRAR:/ && $0 != ""  { getline; REGISTRAR=substr($0,1,25) } END { print REGISTRAR }'`
     fi
 
     # If the Registrar is NULL, then we didn't get any data
@@ -391,15 +388,22 @@ prints()
     then
         printf "%-35s %-17s %-8s %-11s %-5s\n" "$1" "$5" "$2" "$MIN_DATE" "$4"
     else
-
         printf "%-35s %-17s %-8s %-11s %-5s\n" "$1" "$5" "$2" "$MIN_DATE" "$4"
+	
 	# send data to zabbix server
-	${ZABBIXSND} -z ${ZABBIXSERVER} -p ${ZABBIXPORT} -i - <<EOF
-"${1}" "domain.registration.check[DaysLeft]" "$4"
-"${1}" "domain.registration.check[Expires]" "$3"
-"${1}" "domain.registration.check[Registrar]" "$5"
-"${1}" "domain.registration.check[Status]" "$2"
+	if [[ $2 == "skipped" ]]
+	then 
+	        ${ZABBIXSND} -z ${ZABBIXSERVER} -p ${ZABBIXPORT} -i - <<EOF
+"${ZABBIXHOST}" "domain.registration.check[${1},Status]" "$2"
 EOF
+	else
+	${ZABBIXSND} -z ${ZABBIXSERVER} -p ${ZABBIXPORT} -i - <<EOF
+"${ZABBIXHOST}" "domain.registration.check[${1},DaysLeft]" "$4"
+"${ZABBIXHOST}" "domain.registration.check[${1},Expires]" "$3"
+"${ZABBIXHOST}" "domain.registration.check[${1},Registrar]" "$5"
+"${ZABBIXHOST}" "domain.registration.check[${1},Status]" "$2"
+EOF
+	fi
 	echo ""
     fi
 }
@@ -413,7 +417,7 @@ usage()
 {
         echo "Usage: $0 [ -z ]"
         echo ""
-        echo "  -z               : Zabbix format"
+        echo "  -z               : Zabbix send"
         echo ""
 }
 
