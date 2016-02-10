@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2016-02-09T09:14:33Z</date>
+    <date>2016-02-10T06:14:59Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -234,15 +234,6 @@
                         <trigger_prototype>
                             <expression>{Template Domain Check:domain.registration.check[{#DOMAIN},Expires].nodata(259200)}=1</expression>
                             <name>{#DOMAIN} Data not received three days</name>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
-                            <description/>
-                            <type>0</type>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Template Domain Check:domain.registration.check[{#DOMAIN},Status].regexp(Expired)}=1</expression>
-                            <name>{#DOMAIN} Expired</name>
                             <url/>
                             <status>0</status>
                             <priority>1</priority>
