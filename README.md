@@ -1,5 +1,6 @@
 # Description
-Based on script http://www.cyberciti.biz/tips/domain-check-script.html
+Based on script http://www.cyberciti.biz/tips/domain-check-script.html.
+
 Check domain via whois and parse answers.
 
 # Dependencies
